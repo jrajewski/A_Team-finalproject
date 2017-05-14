@@ -39,7 +39,6 @@ import net.sf.freecol.client.FreeColClient;
 import net.sf.freecol.client.gui.ChoiceItem;
 import net.sf.freecol.client.gui.GUI;
 import net.sf.freecol.client.gui.LoadingSavegameInfo;
-import net.sf.freecol.common.FreeColException;
 import net.sf.freecol.common.ServerInfo;
 import net.sf.freecol.common.debug.FreeColDebugger;
 import net.sf.freecol.common.i18n.Messages;
@@ -88,7 +87,7 @@ public final class ConnectController {
     /**
      * The game is finishing.  Release/unhook everything.
      */
-    private void finish() {
+    public boolean finish() {
         ResourceManager.setScenarioMapping(null);
 
         if (!freeColClient.isHeadless()) {
@@ -98,6 +97,7 @@ public final class ConnectController {
         freeColClient.setMyPlayer(null);
         freeColClient.askServer().reset();
         freeColClient.setLoggedIn(false);
+        return false;
     }
 
     /**

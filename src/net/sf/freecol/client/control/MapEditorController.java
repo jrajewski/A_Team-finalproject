@@ -44,7 +44,6 @@ import net.sf.freecol.common.model.StringTemplate;
 import net.sf.freecol.common.model.Tile;
 import net.sf.freecol.common.option.MapGeneratorOptions;
 import net.sf.freecol.common.option.OptionGroup;
-import net.sf.freecol.common.util.LogBuilder;
 import net.sf.freecol.server.FreeColServer;
 import net.sf.freecol.server.generator.MapGenerator;
 import net.sf.freecol.server.model.ServerPlayer;
@@ -172,14 +171,10 @@ public final class MapEditorController {
      */
     public void newMap() {
         final Game game = freeColClient.getGame();
-        final Specification spec = game.getSpecification();
-
         gui.removeInGameComponents();
         OptionGroup mgo = gui.showMapGeneratorOptionsDialog(true);
         if (mgo == null) return;
         game.setMapGeneratorOptions(mgo);
-        Map map = freeColClient.getFreeColServer().getMapGenerator()
-            .createMap(new LogBuilder(-1));
         requireNativeNations(game);
         gui.setFocus(game.getMap().getTile(1,1));
         gui.updateMenuBar();
@@ -244,7 +239,7 @@ public final class MapEditorController {
      *
      * @param game The <code>Game</code> to add native nations to.
      */
-    public void requireNativeNations(Game game) {
+    private void requireNativeNations(Game game) {
         final Specification spec = game.getSpecification();
         for (Nation n : spec.getIndianNations()) {
             Player p = game.getPlayerByNation(n);
@@ -268,7 +263,7 @@ public final class MapEditorController {
         class ErrorJob implements Runnable {
             private final StringTemplate template;
 
-            ErrorJob(StringTemplate template) {
+            private ErrorJob(StringTemplate template) {
                 this.template = template;
             }
 

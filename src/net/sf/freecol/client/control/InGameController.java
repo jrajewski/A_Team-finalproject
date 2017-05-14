@@ -590,8 +590,8 @@ public final class InGameController implements NetworkConstants {
     }
 
     /**
-     * Creates at least one autosave game file of the currently played
-     * game in the autosave directory.  Does nothing if there is no
+     * Creates at least one auto save game file of the currently played
+     * game in the auto save directory.  Does nothing if there is no
      * game running.
      */
     private void autoSaveGame () {
@@ -734,7 +734,7 @@ public final class InGameController implements NetworkConstants {
      * @param endOfTurn Use a turn report panel if necessary.
      * @return True if any messages were displayed.
      */
-    public boolean displayModelMessages(final boolean allMessages,
+    private boolean displayModelMessages(final boolean allMessages,
                                         final boolean endOfTurn) {
         final Player player = freeColClient.getMyPlayer();
         final Turn thisTurn = freeColClient.getGame().getTurn();
@@ -999,7 +999,7 @@ public final class InGameController implements NetworkConstants {
      * @param interactive Interactive mode: play sounds and emit errors.
      * @return True if the unit can possibly move further.
      */
-    public boolean moveDirection(Unit unit, Direction direction,
+    boolean moveDirection(Unit unit, Direction direction,
                                  boolean interactive) {
         // If this move would reach the unit destination but we
         // discover that it would be permanently impossible to complete,
@@ -1336,7 +1336,6 @@ public final class InGameController implements NetworkConstants {
         final Player other = colony.getOwner();
         if (other == player.getREFPlayer()) return false;
 
-        StringTemplate nation = other.getNationLabel();
         while (dt != null) {
             // Inform server of current agreement.
             dt = askServer().diplomacy(game, unit, colony, dt);
@@ -1361,7 +1360,8 @@ public final class InGameController implements NetworkConstants {
      * @return True if the disembark "succeeds" (which deliberately includes
      *     declined disembarks).
      */
-    private boolean moveDisembark(Unit unit, final Direction direction) {
+    @SuppressWarnings("finally")
+	private boolean moveDisembark(Unit unit, final Direction direction) {
         Tile tile = unit.getTile().getNeighbourOrNull(direction);
         if (tile.getFirstUnit() != null
             && tile.getFirstUnit().getOwner() != unit.getOwner()) {
@@ -1398,18 +1398,19 @@ public final class InGameController implements NetworkConstants {
                                    "none", choices);
             if (u == null) {
                 // Cancelled, done.
-            } else if (u == unit) {
+            } 
+            
+            else if (u == unit) {
                 // Disembark all.
                 for (Unit dUnit : disembarkable) {
                     // Guard against loss of control when asking the
                     // server to move the unit.
                     try {
                         moveDirection(dUnit, direction, false);
-                    } finally {
-                        continue;
-                    }
-                }
-            } else {
+                    } 
+                    finally { continue; }
+            }}
+                else {
                 moveDirection(u, direction, false);
             }
         }
@@ -1580,7 +1581,8 @@ public final class InGameController implements NetworkConstants {
      * @param direction The direction in which to move the Unit.
      * @return True if the unit can move further.
      */
-    private boolean moveMove(Unit unit, Direction direction) {
+    @SuppressWarnings("finally")
+	private boolean moveMove(Unit unit, Direction direction) {
         final ClientOptions options = freeColClient.getClientOptions();
         if (unit.canCarryUnits() && unit.hasSpaceLeft()
             && options.getBoolean(ClientOptions.AUTOLOAD_SENTRIES)) {
@@ -2425,9 +2427,6 @@ public final class InGameController implements NetworkConstants {
         final List<GoodsType> goodsTypesToLoad = stop.getCargo();
         boolean ret = false;
 
-        // Unload everything that is on the carrier but not listed to
-        // be loaded at this stop.
-        Game game = freeColClient.getGame();
         for (Goods goods : unit.getCompactGoodsList()) {
             GoodsType type = goods.getType();
             if (goodsTypesToLoad.contains(type)) continue; // Keep this cargo.
@@ -2576,7 +2575,7 @@ public final class InGameController implements NetworkConstants {
      * @param defenderTile The <code>Tile</code> the defence takes place on.
      * @param success True if the attack succeeds.
      */
-    public void animateAttack(Unit attacker, Unit defender,
+    void animateAttack(Unit attacker, Unit defender,
                               Tile attackerTile, Tile defenderTile,
                               boolean success) {
         // Note: we used to focus the map on the unit even when
@@ -2600,7 +2599,7 @@ public final class InGameController implements NetworkConstants {
      * @param oldTile The <code>Tile</code> the move begins at.
      * @param newTile The <code>Tile</code> the move ends at.
      */
-    public void animateMove(Unit unit, Tile oldTile, Tile newTile) {
+    void animateMove(Unit unit, Tile oldTile, Tile newTile) {
         // Note: we used to focus the map on the unit even when
         // animation is off as long as the center-active-unit option
         // was set.  However IR#115 requested that if animation is off
@@ -2703,8 +2702,7 @@ public final class InGameController implements NetworkConstants {
     public boolean buildColony(Unit unit) {
         if (!requireOurTurn() || unit == null) return false;
 
-        // Check unit, which must be on the map and able to build.
-        if (unit == null) return false;
+       
         final Tile tile = unit.getTile();
         if (tile == null) return false;
         if (!unit.canBuildColony()) {
@@ -2712,7 +2710,7 @@ public final class InGameController implements NetworkConstants {
                 .template("buildColony.badUnit")
                 .addName("%unit%", unit.getName()));
             return false;
-        }
+       }
 
         // Join existing colony if present
         final Colony colony = tile.getColony();
@@ -2815,7 +2813,7 @@ public final class InGameController implements NetworkConstants {
      * @param message What to say.
      * @param pri If true, the message is private.
      */
-    public void chat(Player player, String message, boolean pri) {
+    void chat(Player player, String message, boolean pri) {
         gui.displayChatMessage(player, message, pri);
     }
 
@@ -2968,7 +2966,7 @@ public final class InGameController implements NetworkConstants {
      * @param ff The chosen <code>FoundingFather</code> (may be null).
      * @return True if a father was chosen.
      */
-    public boolean chooseFoundingFather(List<FoundingFather> ffs,
+    private boolean chooseFoundingFather(List<FoundingFather> ffs,
                                         FoundingFather ff) {
         if (ffs == null) return false;
 
@@ -2984,7 +2982,7 @@ public final class InGameController implements NetworkConstants {
      *
      * @param ffs A list of <code>FoundingFather</code>s to choose from.
      */
-    public void chooseFoundingFather(List<FoundingFather> ffs) {
+    void chooseFoundingFather(List<FoundingFather> ffs) {
         if (ffs == null) return;
         gui.showChooseFoundingFatherDialog(ffs,
             (FoundingFather ff) -> chooseFoundingFather(ffs, ff));
@@ -3121,7 +3119,7 @@ public final class InGameController implements NetworkConstants {
      *
      * Called from IGIH.closeMenus.
      */
-    public void closeMenus() {
+    void closeMenus() {
         gui.closeMenus();
     }
 
@@ -3177,7 +3175,7 @@ public final class InGameController implements NetworkConstants {
      * @return A counter agreement, a rejected agreement, or null if
      *     the original agreement was already decided.
      */
-    public DiplomaticTrade diplomacy(FreeColGameObject our,
+    DiplomaticTrade diplomacy(FreeColGameObject our,
                                      FreeColGameObject other,
                                      DiplomaticTrade agreement) {
         final Player player = freeColClient.getMyPlayer();
@@ -3276,7 +3274,7 @@ public final class InGameController implements NetworkConstants {
      * @param allMessages Display all messages or just the undisplayed ones.
      * @return True if any messages were displayed.
      */
-    public boolean displayModelMessages(boolean allMessages) {
+    boolean displayModelMessages(boolean allMessages) {
         return displayModelMessages(allMessages, false);
     }
 
@@ -3290,7 +3288,7 @@ public final class InGameController implements NetworkConstants {
      * @param n The number of remaining units known to be eligible to migrate.
      * @param foY True if this migration is due to a fountain of youth event.
      */
-    public void emigrate(Player player, int slot, int n, boolean foY) {
+    private void emigrate(Player player, int slot, int n, boolean foY) {
         if (player == null || !player.isColonial()
             || !MigrationType.validMigrantSlot(slot)) return;
 
@@ -3389,7 +3387,7 @@ public final class InGameController implements NetworkConstants {
      *     display if the resource specified by <code>messageId</code>
      *     is unavailable.
      */
-    public void error(String messageId, String message) {
+    void error(String messageId, String message) {
         gui.showErrorMessage(messageId, message);
     }
 
@@ -3419,7 +3417,7 @@ public final class InGameController implements NetworkConstants {
      * @param result Whether the initial treaty was accepted.
      * @return True if first contact occurs.
      */
-    public boolean firstContact(Player player, Player other, Tile tile,
+    private boolean firstContact(Player player, Player other, Tile tile,
                                 boolean result) {
         if (player == null || player == null || player == other
             || tile == null) return false;
@@ -3442,7 +3440,7 @@ public final class InGameController implements NetworkConstants {
      *     they have made a first landing.
      * @param n The number of settlements claimed by the native player.
      */
-    public void firstContact(Player player, Player other, Tile tile, int n) {
+    void firstContact(Player player, Player other, Tile tile, int n) {
         gui.showFirstContactDialog(player, other, tile, n,
             (Boolean b) -> firstContact(player, other, tile, b));
     }
@@ -3454,7 +3452,7 @@ public final class InGameController implements NetworkConstants {
      *
      * @param n The number of migrants available for selection.
      */
-    public void fountainOfYouth(int n) {
+    void fountainOfYouth(int n) {
         Player player = freeColClient.getMyPlayer();
         final boolean fountainOfYouth = true;
         gui.showEmigrationDialog(player, fountainOfYouth,
@@ -3583,7 +3581,7 @@ public final class InGameController implements NetworkConstants {
      * @param amount The amount of goods/gold demanded.
      * @return Whether the demand was accepted or not.
      */
-    public boolean indianDemand(Unit unit, Colony colony,
+    boolean indianDemand(Unit unit, Colony colony,
                                 GoodsType type, int amount) {
         if (unit == null || colony == null) return false;
 
@@ -3784,7 +3782,7 @@ public final class InGameController implements NetworkConstants {
      * @param defenderId The identifier of the defender unit (may have sunk).
      * @return True if looting occurs.
      */
-    public boolean lootCargo(Unit unit, List<Goods> goods, String defenderId) {
+    private boolean lootCargo(Unit unit, List<Goods> goods, String defenderId) {
         if (unit == null || goods == null || goods.isEmpty()
             || defenderId == null) return false;
 
@@ -3806,7 +3804,7 @@ public final class InGameController implements NetworkConstants {
      * @param goods A list of <code>Goods</code> to choose from.
      * @param defenderId The identifier of the defender unit (may have sunk).
      */
-    public void loot(Unit unit, List<Goods> goods, String defenderId) {
+    void loot(Unit unit, List<Goods> goods, String defenderId) {
         gui.showCaptureGoodsDialog(unit, goods,
             (List<Goods> gl) -> lootCargo(unit, gl, defenderId));
     }
@@ -3847,7 +3845,7 @@ public final class InGameController implements NetworkConstants {
      * @param template A <code>StringTemplate</code> describing the action.
      * @param monarchKey A key for the monarch involved.
      */
-    public void monarch(MonarchAction action, StringTemplate template,
+    void monarch(MonarchAction action, StringTemplate template,
                         String monarchKey) {
         gui.showMonarchDialog(action, template, monarchKey,
             (Boolean b) -> monarchAction(action, b));
@@ -3928,8 +3926,6 @@ public final class InGameController implements NetworkConstants {
 
         if (!askClearGotoOrders(unit)) return false;
 
-        final int unitCount = unit.getUnitCount(),
-            goodsCount = unit.getGoodsList().size();
         final Tile oldTile = unit.getTile();
         UnitWas unitWas = new UnitWas(unit);
         ColonyWas colonyWas = (unit.getColony() == null) ? null
@@ -3980,7 +3976,7 @@ public final class InGameController implements NetworkConstants {
      * @param name The name to use.
      * @return True if the new land was named.
      */
-    public boolean nameNewLand(Unit unit, String name) {
+    private boolean nameNewLand(Unit unit, String name) {
         if (unit == null || name == null) return false;
 
         // Respond to the server.
@@ -4017,7 +4013,7 @@ public final class InGameController implements NetworkConstants {
      * @param name The name to offer.
      * @return True if the new region was named.
      */
-    public boolean nameNewRegion(final Tile tile, final Unit unit,
+    private boolean nameNewRegion(final Tile tile, final Unit unit,
                                  final Region region, final String name) {
         if (tile == null || unit == null || region == null) return false;
 
@@ -4032,7 +4028,7 @@ public final class InGameController implements NetworkConstants {
      * @param defaultName The default name to use.
      * @param unit The <code>Unit</code> that has landed.
      */
-    public void newLandName(String defaultName, Unit unit) {
+    void newLandName(String defaultName, Unit unit) {
         gui.showNamingDialog(
             StringTemplate.key("newLand.text"), defaultName, unit,
             (String name) -> {
@@ -4051,7 +4047,7 @@ public final class InGameController implements NetworkConstants {
      * @param tile The <code>Tile</code> the unit landed at.
      * @param unit The <code>Unit</code> that has landed.
      */
-    public void newRegionName(Region region, String defaultName, Tile tile,
+    void newRegionName(Region region, String defaultName, Tile tile,
                               Unit unit) {
         if (region.hasName()) {
             if (region.isPacific()) {
@@ -4079,7 +4075,7 @@ public final class InGameController implements NetworkConstants {
      * @param turn The turn number.
      * @return True if the new turn occurs.
      */
-    public boolean newTurn(int turn) {
+    boolean newTurn(int turn) {
         final Game game = freeColClient.getGame();
         final Player player = freeColClient.getMyPlayer();
 
@@ -4100,7 +4096,7 @@ public final class InGameController implements NetworkConstants {
             player.addModelMessage(new ModelMessage(MessageType.WARNING,
                                                     "twoTurnsPerYear", player)
                 .addStringTemplate("%year%", currTurn.getLabel())
-                .addAmount("%amount%", currTurn.getSeasonNumber()));
+                .addAmount("%amount%", Turn.getSeasonNumber()));
         }
         return true;
     }
@@ -4284,7 +4280,7 @@ public final class InGameController implements NetworkConstants {
      *
      * @param objects A list of <code>FreeColGameObject</code>s to remove.
      */
-    public void remove(List<FreeColGameObject> objects,
+    void remove(List<FreeColGameObject> objects,
                        FreeColGameObject divert) {
         final Player player = freeColClient.getMyPlayer();
         boolean visibilityChange = false;
@@ -4512,7 +4508,7 @@ public final class InGameController implements NetworkConstants {
      * @param player The <code>Player</code> to be the new current player.
      * @return True if the current player changes.
      */
-    public boolean setCurrentPlayer(Player player) {
+    boolean setCurrentPlayer(Player player) {
         if (FreeColDebugger.isInDebugMode(FreeColDebugger.DebugMode.MENUS)
             && freeColClient.currentPlayerIsMyPlayer()) {
             gui.closeMenus();
@@ -4569,7 +4565,7 @@ public final class InGameController implements NetworkConstants {
      * @param dead The dead <code>Player</code>.
      * @return True if the player is marked as dead.
      */
-    public boolean setDead(Player dead) {
+    boolean setDead(Player dead) {
         if (dead == null) return false;
 
         final Player player = freeColClient.getMyPlayer();
@@ -4603,7 +4599,7 @@ public final class InGameController implements NetworkConstants {
      *
      * No status returned to connect controller.
      */
-    public void setGameConnected () {
+    void setGameConnected () {
         final Player player = freeColClient.getMyPlayer();
         if (player != null) {
             player.refilterModelMessages(freeColClient.getClientOptions());
@@ -4649,7 +4645,7 @@ public final class InGameController implements NetworkConstants {
      * @param second The second <code>Player</code>.
      * @return True if the stance change succeeds.
      */
-    public boolean setStance(Stance stance, Player first, Player second) {
+    boolean setStance(Stance stance, Player first, Player second) {
         if (stance == null || first == null || second == null) return false;
 
         final Player player = freeColClient.getMyPlayer();
@@ -4689,7 +4685,7 @@ public final class InGameController implements NetworkConstants {
      * @param recover A <code>Runnable</code> to restore the normal
      *     player view of the tile when the spying colony panel is closed.
      */
-    public void spyColony(Tile tile, Runnable recover) {
+    void spyColony(Tile tile, Runnable recover) {
         gui.showSpyColonyPanel(tile, recover);
     }
     
@@ -4827,7 +4823,7 @@ public final class InGameController implements NetworkConstants {
      *
      * @param score If "true", a new high score was reached.
      */
-    public void victory(String score) {
+    void victory(String score) {
         displayHighScores("true".equalsIgnoreCase(score));
         gui.showVictoryDialog((Boolean result) -> victory(result));
     }
@@ -4840,7 +4836,7 @@ public final class InGameController implements NetworkConstants {
      * @param quit If true, leave this game and start a new one.
      * @return True.
      */
-    public boolean victory(Boolean quit) {
+    private boolean victory(Boolean quit) {
         if (quit) {
             freeColClient.newGame(false);
         } else {
@@ -4878,7 +4874,6 @@ public final class InGameController implements NetworkConstants {
         if (!requireOurTurn() || unit == null
             || workLocation == null) return false;
 
-        StringTemplate template;
         if (unit.getStudent() != null
             && !gui.confirmAbandonEducation(unit, false)) return false;
 

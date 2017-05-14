@@ -21,8 +21,6 @@ package net.sf.freecol.client.control;
 
 import java.awt.Color;
 
-import java.util.logging.Logger;
-
 import net.sf.freecol.client.FreeColClient;
 import net.sf.freecol.client.gui.GUI;
 import net.sf.freecol.common.debug.FreeColDebugger;
@@ -41,8 +39,6 @@ import net.sf.freecol.common.option.OptionGroup;
  * The controller that will be used before the game starts.
  */
 public final class PreGameController {
-
-    private static final Logger logger = Logger.getLogger(PreGameController.class.getName());
 
     /** The main client. */
     private final FreeColClient freeColClient;
@@ -150,7 +146,7 @@ public final class PreGameController {
      * @return True if the player should continue, false if we are in
      *     a debug run and should be skipping turns.
      */
-    public boolean startGame() {
+    boolean startGame() {
         final Player player = freeColClient.getMyPlayer();
         if (!freeColClient.isHeadless()) {
             gui.closeMainPanel();

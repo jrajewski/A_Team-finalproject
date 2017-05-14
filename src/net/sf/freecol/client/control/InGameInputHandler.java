@@ -577,35 +577,6 @@ public final class InGameInputHandler extends InputHandler {
     }
 
     /**
-     * Disposes of the <code>Unit</code>s which are the children of this
-     * Element.
-     *
-     * @param element The element (root element in a DOM-parsed XML
-     *     tree) that holds all the information.
-     * @return Null.
-     */
-    private Element disposeUnits(Element element) {
-        Game game = getGame();
-        NodeList nodes = element.getChildNodes();
-
-        for (int i = 0; i < nodes.getLength(); i++) {
-            // Do not read the whole unit out of the element as we are
-            // only going to dispose of it, not forgetting that the
-            // server may have already done so and its view will only
-            // mislead us here in the client.
-            Element e = (Element) nodes.item(i);
-            String id = FreeColObject.readId(e);
-            Unit u = game.getFreeColGameObject(id, Unit.class);
-            if (u == null) {
-                logger.warning("Object is not a unit");
-            } else {
-                u.dispose();
-            }
-        }
-        return null;
-    }
-
-    /**
      * Handle an "error"-message.
      *
      * @param element The element (root element in a DOM-parsed XML
@@ -613,9 +584,10 @@ public final class InGameInputHandler extends InputHandler {
      * @return Null.
      */
     private Element error(Element element) {
-        final String messageId = element.getAttribute("messageID");
+       
         final String message = element.getAttribute("message");
-
+        final String messageId = element.getAttribute("messageId");
+      
         invokeLater(() -> { igc().error(messageId, message); });
         return null;
     }
@@ -903,7 +875,7 @@ public final class InGameInputHandler extends InputHandler {
      *     tree) that holds all the information.
      * @return Null.
      */
-    private Element reconnect(@SuppressWarnings("unused") Element element) {
+    private Element reconnect(Element element) {
         logger.finest("Entered reconnect.");
 
         invokeLater(reconnectRunnable);
@@ -928,10 +900,6 @@ public final class InGameInputHandler extends InputHandler {
             String idString = FreeColObject.readId(e);
             FreeColGameObject fcgo = game.getFreeColGameObject(idString);
             if (fcgo == null) {
-                // This can happen legitimately when an update that
-                // removes pointers to a disappearing unit happens,
-                // then a gc which drops the weak reference in
-                // freeColGameObjects, before this remove is processed.
                 continue;
             }
             objects.add(fcgo);
