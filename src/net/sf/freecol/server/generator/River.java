@@ -38,7 +38,7 @@ import static net.sf.freecol.common.util.RandomUtils.*;
 /**
  * A river for the map generator.
  */
-public class River {
+class River {
 
     private static final Logger logger = Logger.getLogger(SimpleMapGenerator.class.getName());
 
@@ -137,7 +137,7 @@ public class River {
      * @param region The region for this river.
      * @param random The <code>Random</code> number source to use.
      */
-    public River(Map map, java.util.Map<Tile, River> riverMap,
+    River(Map map, java.util.Map<Tile, River> riverMap,
                  ServerRegion region, Random random) {
         this.map = map;
         this.riverMap = riverMap;
@@ -185,15 +185,16 @@ public class River {
         this.region = newServerRegion;
     }
 
-    /**
-     * Adds a new section to this river.
-     *
-     * @param tile The <code>Tile</code> where this section is located.
-     * @param direction The <code>Direction</code> the river is flowing in.
-     */
-    public void add(Tile tile, Direction direction) {
-        this.sections.add(new RiverSection(tile, direction));
-    }
+// TODO Remove unused code found by UCDetector
+//     /**
+//      * Adds a new section to this river.
+//      *
+//      * @param tile The <code>Tile</code> where this section is located.
+//      * @param direction The <code>Direction</code> the river is flowing in.
+//      */
+//     public void add(Tile tile, Direction direction) {
+//         this.sections.add(new RiverSection(tile, direction));
+//     }
 
     /**
      * Increases the size of this river.
@@ -201,7 +202,7 @@ public class River {
      * @param lastSection The last section of the river flowing into this one.
      * @param tile The <code>Tile</code> of the confluence.
      */
-    public void grow(RiverSection lastSection, Tile tile) {
+    private void grow(RiverSection lastSection, Tile tile) {
 
         boolean found = false;
 
@@ -229,7 +230,7 @@ public class River {
      * @param tile A map tile.
      * @return true if the given tile is next to this river.
      */
-    public boolean isNextToSelf(Tile tile) {
+    private boolean isNextToSelf(Tile tile) {
         return any(Direction.longSides,
             d -> this.contains(tile.getNeighbourOrNull(d)));
     }
@@ -240,7 +241,7 @@ public class River {
      * @param tile A map tile.
      * @return true if the given tile is next to a river, lake or sea.
      */
-    public boolean isNextToWater(Tile tile) {
+    private boolean isNextToWater(Tile tile) {
         return any(Direction.longSides,
             d -> {
                 Tile t = tile.getNeighbourOrNull(d);
@@ -254,7 +255,7 @@ public class River {
      * @param tile A map tile.
      * @return true if this river already contains the given tile.
      */
-    public boolean contains(Tile tile) {
+    private boolean contains(Tile tile) {
         return any(getSections(), rs -> rs.getTile() == tile);
     }
 
@@ -264,7 +265,7 @@ public class River {
      * @param tile An origin map <code>Tile</code>.
      * @return True if a river was created, false otherwise.
      */
-    public boolean flowFromSource(Tile tile) {
+    boolean flowFromSource(Tile tile) {
         TileImprovementType riverType =
             map.getSpecification().getTileImprovementType("model.improvement.river");
         if (!riverType.isTileTypeAllowed(tile.getType())) {

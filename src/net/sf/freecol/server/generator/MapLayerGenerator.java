@@ -17,30 +17,31 @@
  *  along with FreeCol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.sf.freecol.server.generator;
+//package net.sf.freecol.server.generator;
 
-import net.sf.freecol.common.model.Game;
-import net.sf.freecol.common.model.Map.Layer;
+//import net.sf.freecol.common.model.Game;
+//import net.sf.freecol.common.model.Map.Layer;
 
-/**
- * Generates a map layer.
- */
-public interface MapLayerGenerator {
-
-    /**
-     * Generates the layer in the map of the given game. Returns true
-     * if the layer was generated, and false otherwise.
-     *
-     * @param game a <code>Game</code> value
-     * @return a <code>boolean</code> value
-     */
-    public boolean generateLayer(Game game);
-
-    /**
-     * Returns the Layer this MapLayerGenerator is able to generate.
-     *
-     * @return a <code>Layer</code> value
-     */
-    public Layer getLayer();
-
-}
+// TODO Remove unused code found by UCDetector
+// /**
+//  * Generates a map layer.
+//  */
+// public interface MapLayerGenerator {
+// 
+//     /**
+//      * Generates the layer in the map of the given game. Returns true
+//      * if the layer was generated, and false otherwise.
+//      *
+//      * @param game a <code>Game</code> value
+//      * @return a <code>boolean</code> value
+//      */
+//     public boolean generateLayer(Game game);
+// 
+//     /**
+//      * Returns the Layer this MapLayerGenerator is able to generate.
+//      *
+//      * @return a <code>Layer</code> value
+//      */
+//     public Layer getLayer();
+// 
+// }

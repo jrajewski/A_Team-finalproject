@@ -921,7 +921,8 @@ public class SimpleMapGenerator implements MapGenerator {
         return null;
     }
 
-    private void createDebugUnits(Map map, Player player, Tile startTile,
+    @SuppressWarnings("unused")
+	private void createDebugUnits(Map map, Player player, Tile startTile,
                                   LogBuilder lb) {
         // In debug mode give each player a few more units and a colony.
         UnitType unitType = spec.getUnitType("model.unit.galleon");
@@ -930,11 +931,12 @@ public class SimpleMapGenerator implements MapGenerator {
         Unit privateer = new ServerUnit(game, startTile, player, unitType);
         ((ServerPlayer)player).exploreForUnit(privateer);
         unitType = spec.getUnitType("model.unit.freeColonist");
-        Unit unit5 = new ServerUnit(game, unit4, player, unitType);
+		Unit unit5 = new ServerUnit(game, unit4, player, unitType);
         unitType = spec.getUnitType("model.unit.veteranSoldier");
-        Unit unit6 = new ServerUnit(game, unit4, player, unitType);
+		Unit unit6 = new ServerUnit(game, unit4, player, unitType);
         unitType = spec.getUnitType("model.unit.jesuitMissionary");
-        Unit unit7 = new ServerUnit(game, unit4, player, unitType);
+        
+		Unit unit7 = new ServerUnit(game, unit4, player, unitType);
 
         Tile colonyTile = null;
         for (Tile tempTile : map.getCircleTiles(startTile, true, 

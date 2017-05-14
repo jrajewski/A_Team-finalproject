@@ -23,7 +23,7 @@ import net.sf.freecol.common.model.Game;
 import net.sf.freecol.common.model.Map.Layer;
 
 
-public interface MapLoader {
+interface MapLoader {
 
     /**
      * Load a map into the given game, copying all layers up to the
