@@ -195,7 +195,7 @@ public final class PreGameInputHandler extends InputHandler {
      *                holds all the information.
      * @return The result of handling the last <code>Element</code>.
      */
-    public Element multiple(Connection connection, Element element) {
+    private Element multiple(Connection connection, Element element) {
         NodeList nodes = element.getChildNodes();
         Element reply = null;
 
@@ -273,8 +273,8 @@ public final class PreGameInputHandler extends InputHandler {
      *     tree) that holds all the information.
      * @return Null.
      */
-    private Element startGame(@SuppressWarnings("unused") Element element) {
-        new Thread(FreeCol.CLIENT_THREAD + "Starting game") {
+    private Element startGame(Element element){
+    	new Thread(FreeCol.CLIENT_THREAD + "Starting game") {
                 @Override
                 public void run() {
                     while (getFreeColClient().getGame().getMap() == null) {

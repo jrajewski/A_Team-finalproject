@@ -55,8 +55,9 @@ public class SoundController {
         final ClientOptions opts = freeColClient.getClientOptions();
         if (sound) {
             this.soundPlayer = null;
-            Option amo = opts.getOption(ClientOptions.AUDIO_MIXER);
-            Option vo = opts.getOption(ClientOptions.AUDIO_VOLUME);
+        
+			Option amo = opts.getOption(ClientOptions.AUDIO_MIXER);
+			Option vo = opts.getOption(ClientOptions.AUDIO_VOLUME);
             if (!(amo instanceof AudioMixerOption)) {
                 logger.warning(ClientOptions.AUDIO_MIXER + " is not an AudioMixerOption");
             } else if (!(vo instanceof PercentageOption)) {

@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
 /**
  * Provides common methods for input handlers.
  */
-public abstract class InputHandler implements MessageHandler {
+abstract class InputHandler implements MessageHandler {
 
     private static final Logger logger = Logger.getLogger(InputHandler.class.getName());
 
@@ -46,7 +46,7 @@ public abstract class InputHandler implements MessageHandler {
      *
      * @param freeColClient The <code>FreeColClient</code> for the game.
      */
-    public InputHandler(FreeColClient freeColClient) {
+    InputHandler(FreeColClient freeColClient) {
         this.freeColClient = freeColClient;
     }
 
