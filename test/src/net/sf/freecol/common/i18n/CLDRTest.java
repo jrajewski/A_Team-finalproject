@@ -64,8 +64,6 @@ public class CLDRTest extends FreeColTestCase {
         } catch (Exception e) {
             fail("Failed to open input stream.");
         }
-        NumberRules numberRules = new NumberRules(in);
-
         try {
             in.close();
         } catch (Exception e) {
