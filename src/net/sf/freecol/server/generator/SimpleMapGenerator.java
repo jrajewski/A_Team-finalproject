@@ -87,7 +87,7 @@ import net.sf.freecol.server.model.ServerUnit;
  */
 public class SimpleMapGenerator implements MapGenerator {
 
-    private static final Logger logger = Logger.getLogger(SimpleMapGenerator.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SimpleMapGenerator.class.getName());
 
     /**
      * To avoid starting positions too close to the poles, this
@@ -114,9 +114,12 @@ public class SimpleMapGenerator implements MapGenerator {
         }
 
         public Tile getCenterTile(Map map) {
-            if (tile != null) return tile;
-            int[] xy = region.getCenter();
-            return map.getTile(xy[0], xy[1]);
+            if (tile != null){ 
+            	return tile;
+            } else{
+	            final int[] xyCoords = region.getCenter();
+	            return map.getTile(xyCoords[0], xyCoords[1]);
+            }
         }
 
         /**
@@ -162,10 +165,10 @@ public class SimpleMapGenerator implements MapGenerator {
      *
      * @param checkImport Check for an import file or not.
      */
-    private void recache(boolean checkImport) {
+    private void recache(final boolean checkImport) {
         this.mapOptions = game.getMapGeneratorOptions();
         this.spec = game.getSpecification();
-        File importFile = (checkImport) ? ((FileOption)this.mapOptions
+        final File importFile = (checkImport) ? ((FileOption)this.mapOptions
             .getOption(MapGeneratorOptions.IMPORT_FILE)).getValue()
             : null;
         this.importGame = (importFile == null) ? null
@@ -189,28 +192,23 @@ public class SimpleMapGenerator implements MapGenerator {
      * The number of rumours depends on the map size.
      *
      * @param map The <code>Map</code> to use.
-     * @param lb A <code>LogBuilder</code> to log to.
+     * @param logBuilder A <code>LogBuilder</code> to log to.
      */
-    private void makeLostCityRumours(Map map, LogBuilder lb) {
+    private void makeLostCityRumours(Map map, LogBuilder logBuilder) {
         final boolean importRumours
             = mapOptions.getBoolean(MapGeneratorOptions.IMPORT_RUMOURS);
         if (importGame != null && importRumours) {
             int nLCRs = 0;
-            for (Tile importTile : importGame.getMap().getAllTiles()) {
+            for (final Tile importTile : importGame.getMap().getAllTiles()) {
                 LostCityRumour rumour = importTile.getLostCityRumour();
                 // no rumor
                 if (rumour == null) continue;
                 int x = importTile.getX();
                 int y = importTile.getY();
-                if (map.isValid(x, y)) {
-                    final Tile t = map.getTile(x, y);
-                    rumour.setLocation(t);
-                    t.addLostCityRumour(rumour);
-                    nLCRs++;
-                }
+                nLCRs = mapValid(map, nLCRs, rumour, x, y);
             }
             if (nLCRs > 0) {
-                lb.add("Imported ", nLCRs, " lost city rumours.\n");
+                logBuilder.add("Imported ", nLCRs, " lost city rumours.\n");
                 return;
             }
             // Otherwise fall through and create them
@@ -228,26 +226,53 @@ public class SimpleMapGenerator implements MapGenerator {
 
         for (int i = 0; i < number; i++) {
             for (int tries = 0; tries < 100; tries++) {
-                Tile t = map.getRandomLandTile(random);
-                if (t.isPolar()) continue; // No polar lost cities
-                if (t.isLand() && !t.hasLostCityRumour()
-                    && !t.hasSettlement() && t.getUnitCount() == 0) {
-                    LostCityRumour r = new LostCityRumour(t.getGame(), t);
-                    if (r.chooseType(null, random)
-                        == LostCityRumour.RumourType.MOUNDS
-                        && t.getOwningSettlement() != null) {
-                        r.setType(LostCityRumour.RumourType.MOUNDS);
-                    }
-                    t.addLostCityRumour(r);
-                    counter++;
-                    break;
-                }
+                counter = addLCR(map, counter);
             }
         }
-        lb.add("Created ", counter,
+        logBuilder.add("Created ", counter,
             " lost city rumours of maximum ", number, ".\n");
     }
+    /*
+     * Attempt to refactor makeLostCityRumours here by extracting methods
+     */
 
+    private int mapValid(Map map, int nLCRs, LostCityRumour rumour, int x, int y) {
+		if (map.isValid(x, y)) {
+		    final Tile t = map.getTile(x, y);
+		    rumour.setLocation(t);
+		    t.addLostCityRumour(rumour);
+		    nLCRs++;
+		}
+		return nLCRs;
+	}
+    
+	private int addLCR(Map map, int counter) {
+		Tile t = map.getRandomLandTile(random);
+		if (t.isPolar())
+		 return counter;
+		if (t.isLand() && !t.hasLostCityRumour()
+		    && !t.hasSettlement() && t.getUnitCount() == 0) {
+		    counter = setAddLCR(counter, t);
+		}
+		return counter;
+	}
+
+	private int setAddLCR(int counter, Tile t) {
+		LostCityRumour r = new LostCityRumour(t.getGame(), t);
+		if (r.chooseType(null, random)
+		    == LostCityRumour.RumourType.MOUNDS
+		    && t.getOwningSettlement() != null) {
+		    r.setType(LostCityRumour.RumourType.MOUNDS);
+		}
+		t.addLostCityRumour(r);
+		counter++;
+		return counter;
+	}
+
+	/*
+	 * End method extraction for makeLostCityRumours
+	 */
+	
     private boolean importIndianSettlements(Map map, LogBuilder lb) {
         int nSettlements = 0;
         
@@ -423,7 +448,7 @@ public class SimpleMapGenerator implements MapGenerator {
         // layer of surrounding tiles to own.
         List<Tile> allTiles = new ArrayList<>();
         for (Tile t : map.getAllTiles()) allTiles.add(t);
-        randomShuffle(logger, "All tile shuffle", allTiles, random);
+        randomShuffle(LOGGER, "All tile shuffle", allTiles, random);
         final int minDistance
             = spec.getRangeOption(GameOptions.SETTLEMENT_NUMBER).getValue();
         List<Tile> settlementTiles = new ArrayList<>();
@@ -433,7 +458,7 @@ public class SimpleMapGenerator implements MapGenerator {
                 && none(settlementTiles, t -> t.getDistanceTo(tile) < minDistance))
                 settlementTiles.add(tile);
         }
-        randomShuffle(logger, "Settlement tiles", settlementTiles, random);
+        randomShuffle(LOGGER, "Settlement tiles", settlementTiles, random);
 
         // Check number of settlements.
         int settlementsToPlace = settlementTiles.size();
@@ -508,7 +533,7 @@ public class SimpleMapGenerator implements MapGenerator {
         // FIXME: move the magic numbers below to the spec
         // Also collect the skills provided
         HashMap<UnitType, List<IndianSettlement>> skills = new HashMap<>();
-        randomShuffle(logger, "Settlements", settlements, random);
+        randomShuffle(LOGGER, "Settlements", settlements, random);
         for (IndianSettlement is : settlements) {
             List<Tile> tiles = new ArrayList<>();
             for (Tile tile : is.getOwnedTiles()) {
@@ -519,11 +544,11 @@ public class SimpleMapGenerator implements MapGenerator {
                     }
                 }
             }
-            randomShuffle(logger, "Settlement tiles", tiles, random);
+            randomShuffle(LOGGER, "Settlement tiles", tiles, random);
             int minGrow = is.getType().getMinimumGrowth();
             int maxGrow = is.getType().getMaximumGrowth();
             if (maxGrow > minGrow) {
-                for (int i = randomInt(logger, "Gdiff", random,
+                for (int i = randomInt(LOGGER, "Gdiff", random,
                                        maxGrow - minGrow) + minGrow;
                      i > 0; i--) {
                     Tile tile = findFreeNeighbouringTile(is, tiles);
@@ -581,7 +606,7 @@ public class SimpleMapGenerator implements MapGenerator {
             if (!choices.isEmpty()) {
                 // ...and pick one that could do the missing job.
                 IndianSettlement chose = RandomChoice
-                    .getWeightedRandom(logger, "expert", choices, random);
+                    .getWeightedRandom(LOGGER, "expert", choices, random);
                 lb.add("At ", chose.getName(),
                     " replaced ", extraSkill,
                     " (one of ", extras.size(), ")",
@@ -634,7 +659,7 @@ public class SimpleMapGenerator implements MapGenerator {
                                           List<Tile> tiles) {
         for (Tile tile : tiles) {
             for (Direction d : Direction.getRandomDirections("freeTile",
-                    logger, random)) {
+                    LOGGER, random)) {
                 Tile t = tile.getNeighbourOrNull(d);
                 if ((t != null)
                     && (t.getOwningSettlement() == null)
@@ -768,7 +793,7 @@ public class SimpleMapGenerator implements MapGenerator {
         if (skill == null) {
             // Seasoned Scout
             List<UnitType> unitList = map.getSpecification().getUnitTypesWithAbility(Ability.EXPERT_SCOUT);
-            return getRandomMember(logger, "Scout", unitList, random);
+            return getRandomMember(LOGGER, "Scout", unitList, random);
         } else {
             return skill;
         }
@@ -796,7 +821,7 @@ public class SimpleMapGenerator implements MapGenerator {
                 // eastern edge of the map
                 int x = width - 2;
                 // random latitude, not too close to the pole
-                int y = randomInt(logger, "Pole", random,
+                int y = randomInt(LOGGER, "Pole", random,
                                   height - 2*poleDistance) + poleDistance;
                 player.setEntryLocation(map.getTile(x, y));
                 continue;
@@ -1053,7 +1078,7 @@ public class SimpleMapGenerator implements MapGenerator {
                     positions.add(new Position(east, row));
                     row += distance;
                 }
-                randomShuffle(logger, "Classic starting positions",
+                randomShuffle(LOGGER, "Classic starting positions",
                               positions, random);
                 break;
             case GameOptions.STARTING_POSITIONS_RANDOM:
@@ -1067,7 +1092,7 @@ public class SimpleMapGenerator implements MapGenerator {
                         row += distance;
                     }
                 }
-                randomShuffle(logger, "Random starting positions",
+                randomShuffle(LOGGER, "Random starting positions",
                               positions, random);
                 break;
             case GameOptions.STARTING_POSITIONS_HISTORICAL:
