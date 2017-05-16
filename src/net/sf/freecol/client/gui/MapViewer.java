@@ -126,7 +126,11 @@ public final class MapViewer {
     // Helper variables for displaying the map.
     private int tileHeight, tileWidth, halfHeight, halfWidth,
         topSpace, topRows, /*bottomSpace,*/ bottomRows, leftSpace, rightSpace;
+    
+    //For hex grid
+    private double testHeight, testWidth;
 
+    
     // The y-coordinate of the Tiles that will be drawn at the bottom
     private int bottomRow = -1;
 
@@ -1242,7 +1246,11 @@ public final class MapViewer {
         tileWidth = tileSize.width;
         halfHeight = tileHeight/2;
         halfWidth = tileWidth/2;
+        testWidth = tileWidth * .204;
+        testWidth = tileWidth * .204;
 
+        
+        
         int dx = tileWidth/16;
         int dy = tileHeight/16;
         int ddx = dx + dx/2;
@@ -1335,20 +1343,23 @@ public final class MapViewer {
                 g.translate(-xt, -yt);
             });
 
-        // Draw the grid, if needed
+        // Draw the grid, if needed        
         if (options.getBoolean(ClientOptions.DISPLAY_GRID)) {
             // Generate a zigzag GeneralPath
-            GeneralPath gridPath = new GeneralPath();
-            gridPath.moveTo(0, 0);
-            int nextX = halfWidth;
-            int nextY = -halfHeight;
-            for (int i = 0; i <= ((lastColumn - firstColumn) * 2 + 1); i++) {
-                gridPath.lineTo(nextX, nextY);
-                nextX += halfWidth;
-                nextY = (nextY == 0 ? -halfHeight : 0);
+        	GeneralPath gridPath = new GeneralPath();
+            gridPath.moveTo(0, 0);          
+            double startX = halfWidth + 0.0;
+            double nextX = testWidth;
+            double startY = -halfHeight + 0.0;
+            double nextY = -testHeight;
+            for (int i = 0; i <= ((lastColumn - firstColumn) * 2 + 1); i++) {           	
+            	gridPath.lineTo(startX + nextX, startY);
+            	startX += halfWidth;
+                startY = (startY == 0 ? -halfHeight : 0);
+            	gridPath.lineTo(startX + - nextX, startY); 
+            	gridPath.lineTo(startX, startY);                             
             }
 
-            // Display the grid
             g.setStroke(gridStroke);
             g.setColor(Color.BLACK);
             for (int row = firstRow; row <= lastRow; row++) {
@@ -1361,7 +1372,9 @@ public final class MapViewer {
                 g.setTransform(rowTransform);
             }
             g.setTransform(baseTransform);
+            
         }
+
 
         // Paint full region borders
         if (options.getInteger(ClientOptions.DISPLAY_TILE_TEXT) ==
