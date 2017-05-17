@@ -27,6 +27,7 @@ import net.sf.freecol.common.io.FreeColSavegameFile;
 import net.sf.freecol.common.model.FreeColObject;
 import net.sf.freecol.common.model.Game;
 import net.sf.freecol.common.model.IndianSettlement;
+import net.sf.freecol.common.model.LandMap;
 import net.sf.freecol.common.model.Map;
 import net.sf.freecol.common.model.Nation;
 import net.sf.freecol.common.model.NationOptions;
@@ -45,6 +46,28 @@ import net.sf.freecol.util.test.FreeColTestCase;
 
 public class MapGeneratorTest extends FreeColTestCase {
 
+	public void testCreateEmptyMap(){
+		((FileOption) spec().getOption(MapGeneratorOptions.IMPORT_FILE)).setValue(null);
+
+        Game g = new ServerGame(spec());
+        g.setNationOptions(new NationOptions(spec()));
+
+        // A new game does not have a map yet
+        assertEquals(null, g.getMap());
+
+        MapGenerator gen = new SimpleMapGenerator(g, new Random(1));
+		LogBuilder lb = new LogBuilder(10);
+		Map map = gen.createEmptyMap(10, 10, lb);
+	}
+	
+	public void testCreateDebugUnits1(){
+		//Map map, Player player, Tile startTile,
+        //LogBuilder lb 
+		//above are params to the method
+		// Create land map.
+        
+	}
+	
     public void testWithNoIndians() {
         ((FileOption) spec().getOption(MapGeneratorOptions.IMPORT_FILE)).setValue(null);
 

@@ -596,18 +596,26 @@ public class SimpleMapGenerator implements MapGenerator {
                 lb.add("Game is missing skill: ", neededSkill, "\n");
             }
         }
+        
+        //done refactoring below
         lb.add("Settlement skills:");
         for (List<IndianSettlement> iss : isList) {
-            if (iss.isEmpty()) {
-                lb.add("  0 x <none>");
-            } else {
-                lb.add("  ", iss.size(),
-                    " x ", iss.get(0).getLearnableSkill().getSuffix());
-            }
+            lb = addSettlementSkill(lb, iss);
         }
         lb.add("\nCreated ", settlementsPlaced,
             " Indian settlements of maximum ", settlementsToPlace, ".\n");
     }
+
+
+	private LogBuilder addSettlementSkill(LogBuilder lb, List<IndianSettlement> iss) {
+		if (iss.isEmpty()) {
+		    lb.add("  0 x <none>");
+		} else {
+		    lb.add("  ", iss.size(),
+		        " x ", iss.get(0).getLearnableSkill().getSuffix());
+		}
+		return lb;
+	}
 
     /**
      * Is a tile suitable for a native settlement?
@@ -921,7 +929,8 @@ public class SimpleMapGenerator implements MapGenerator {
         return null;
     }
 
-    private void createDebugUnits(Map map, Player player, Tile startTile,
+    @SuppressWarnings("unused")
+	private void createDebugUnits(Map map, Player player, Tile startTile,
                                   LogBuilder lb) {
         // In debug mode give each player a few more units and a colony.
         UnitType unitType = spec.getUnitType("model.unit.galleon");
@@ -930,11 +939,12 @@ public class SimpleMapGenerator implements MapGenerator {
         Unit privateer = new ServerUnit(game, startTile, player, unitType);
         ((ServerPlayer)player).exploreForUnit(privateer);
         unitType = spec.getUnitType("model.unit.freeColonist");
-        Unit unit5 = new ServerUnit(game, unit4, player, unitType);
+		Unit unit5 = new ServerUnit(game, unit4, player, unitType);
         unitType = spec.getUnitType("model.unit.veteranSoldier");
-        Unit unit6 = new ServerUnit(game, unit4, player, unitType);
+		Unit unit6 = new ServerUnit(game, unit4, player, unitType);
         unitType = spec.getUnitType("model.unit.jesuitMissionary");
-        Unit unit7 = new ServerUnit(game, unit4, player, unitType);
+        
+		Unit unit7 = new ServerUnit(game, unit4, player, unitType);
 
         Tile colonyTile = null;
         for (Tile tempTile : map.getCircleTiles(startTile, true, 
