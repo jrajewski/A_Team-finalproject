@@ -596,18 +596,26 @@ public class SimpleMapGenerator implements MapGenerator {
                 lb.add("Game is missing skill: ", neededSkill, "\n");
             }
         }
+        
+        //done refactoring below
         lb.add("Settlement skills:");
         for (List<IndianSettlement> iss : isList) {
-            if (iss.isEmpty()) {
-                lb.add("  0 x <none>");
-            } else {
-                lb.add("  ", iss.size(),
-                    " x ", iss.get(0).getLearnableSkill().getSuffix());
-            }
+            lb = addSettlementSkill(lb, iss);
         }
         lb.add("\nCreated ", settlementsPlaced,
             " Indian settlements of maximum ", settlementsToPlace, ".\n");
     }
+
+
+	private LogBuilder addSettlementSkill(LogBuilder lb, List<IndianSettlement> iss) {
+		if (iss.isEmpty()) {
+		    lb.add("  0 x <none>");
+		} else {
+		    lb.add("  ", iss.size(),
+		        " x ", iss.get(0).getLearnableSkill().getSuffix());
+		}
+		return lb;
+	}
 
     /**
      * Is a tile suitable for a native settlement?
