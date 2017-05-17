@@ -47,7 +47,7 @@ public class ServerInfo {
     /**
      * Empty constructor that can be used by subclasses.
      */
-    protected ServerInfo() {}
+    public ServerInfo() {}
 
     /**
      * Creates a new object with the given information.
