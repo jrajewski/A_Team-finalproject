@@ -299,6 +299,7 @@ public class MapGeneratorTest extends FreeColTestCase {
     }
     
     //codepro test cases
+    //modified to set up a game for each test
     
 	public void testSimpleMapGenerator_1()
 		throws Exception {
@@ -309,6 +310,7 @@ public class MapGeneratorTest extends FreeColTestCase {
 		Random random = new Random();
 
 		SimpleMapGenerator result = new SimpleMapGenerator(game, random);
+		
 
 		// add additional test code here
 		// An unexpected exception was thrown in user code while executing this test:
