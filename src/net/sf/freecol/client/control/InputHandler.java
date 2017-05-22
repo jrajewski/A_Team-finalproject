@@ -50,7 +50,7 @@ abstract class InputHandler implements MessageHandler {
         this.freeColClient = freeColClient;
     }
 
-
+    
     /**
      * Gets the main freecol client object.
      *
@@ -121,7 +121,7 @@ abstract class InputHandler implements MessageHandler {
      *                holds all the information.
      * @return Null.
      */
-    protected Element unknown(Element element) {
+    public Element unknown(Element element) {
         logger.warning("Unknown message type: " + element.getTagName());
         return null;
     }

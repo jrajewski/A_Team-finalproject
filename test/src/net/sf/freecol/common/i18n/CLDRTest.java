@@ -1,4 +1,6 @@
 /**
+
+
  *  Copyright (C) 2002-2015  The FreeCol Team
  *
  *  This file is part of FreeCol.
@@ -19,10 +21,22 @@
 
 package net.sf.freecol.common.i18n;
 
+import java.awt.List;
 import java.io.File;
 import java.io.FileInputStream;
 
+import org.w3c.dom.Element;
+
+import net.sf.freecol.common.FreeColSeed;
+import net.sf.freecol.common.ServerInfo;
 import net.sf.freecol.common.i18n.Number.Category;
+import net.sf.freecol.common.model.AbstractGoods;
+import net.sf.freecol.common.model.Game;
+import net.sf.freecol.common.model.GoodsType;
+import net.sf.freecol.common.model.IndianNationType;
+import net.sf.freecol.common.model.ResourceType;
+import net.sf.freecol.common.model.Specification;
+import net.sf.freecol.common.model.Tile;
 import net.sf.freecol.util.test.FreeColTestCase;
 
 
@@ -106,4 +120,152 @@ public class CLDRTest extends FreeColTestCase {
         assertNotNull(NumberRules.getNumberForLanguage("sms"));
         assertTrue(NumberRules.getNumberForLanguage("sms") instanceof DualNumberRule);
     }
+    
+    public void testFreeColSeed_1()
+    		throws Exception {
+    		FreeColSeed result = new FreeColSeed();
+    		assertNotNull(result);
+    		// add additional test code here
+    	}
+    
+    
+    	
+    	public void testGetFreeColSeed_1()
+    		throws Exception {
+    		boolean generate = true;
+    
+    		long result = FreeColSeed.getFreeColSeed(generate);
+   
+    	
+    		assertNotNull(result);
+    	}
+    	
+    	public void testServerInfo_1()
+    	 		throws Exception {
+    	 
+    	 		ServerInfo result = new ServerInfo();
+    	 
+    	 		// add additional test code here
+    	 		assertNotNull(result);
+    	 		assertEquals("null(null:0) 0, 0, false, null, 0", result.toString());
+    	 		assertEquals(null, result.getAddress());
+    	 		assertEquals(null, result.getName());
+    	 		assertEquals(0, result.getPort());
+    	 		assertEquals(null, result.getVersion());
+    	 		assertEquals(0, result.getGameState());
+    	 		assertEquals(0, result.getSlotsAvailable());
+    	 		assertEquals(0, result.getCurrentlyPlaying());
+    	 	}
+    	
+    	
+    	 	public void testGetRegionNames_1()
+    	 		throws Exception {
+    	 		IndianNationType fixture = new IndianNationType("", new Specification());
+    	 
+    	 	java.util.List<String> result = fixture.getRegionNames();
+    	 
+    	 		// add additional test code here
+    	 		assertNotNull(result);
+    	 		assertEquals(0, result.size());
+    	 	}
+    	 	
+    	 	public void testIndianNationType_1()
+    	 	 		throws Exception {
+    	 	 		String id = "";
+    	 	 		Specification specification = new Specification();
+    	 	 
+    	 	 		IndianNationType result = new IndianNationType(id, specification);
+    	 	 
+    	 	 		// add additional test code here
+    	 	 		assertNotNull(result);
+    	 	 		assertEquals(false, result.isEuropean());
+    	 	 		assertEquals(false, result.isREF());
+    	 	 		assertEquals(true, result.isIndian());
+    	 	 		assertEquals("indian-nation-type", result.getXMLTagName());
+    	 	 		assertEquals(null, result.getCapitalType());
+    	 	 		assertEquals("", result.toString());
+    	 	 		assertEquals(".description", result.getDescriptionKey());
+    	 	 		assertEquals(".name", result.getNameKey());
+    	 	 		assertEquals(false, result.isAbstractType());
+    	 	 		assertEquals("", result.getId());
+    	 	 		assertEquals("", result.getSuffix());
+    	 	 		assertEquals("<indian-nation-type id=\"\" number-of-settlements=\"average\" aggression=\"average\"></indian-nation-type>", result.serialize());
+    	 	
+    	 	 		assertEquals("", result.getIdType());
+    	 	 		assertEquals(-1, result.getIdNumber());
+    	 	 	}
+    	
+    	public void testGetAddress_1()
+    	 		throws Exception {
+    	 		ServerInfo fixture = new ServerInfo();
+    	 		fixture.update("", "", 1, 1, 1, true, "", 1);
+    	 
+    	 		String result = fixture.getAddress();
+    	 
+    	 	
+    	 		assertEquals("", result);
+    	 	}
+    	
+    	public void testGetCurrentlyPlaying_1()
+    			throws Exception {
+    	 		ServerInfo fixture = new ServerInfo();
+    	 		fixture.update("", "", 1, 1, 1, true, "", 1);
+    	 
+    	 		int result = fixture.getCurrentlyPlaying();
+    	 
+    	 		// add additional test code here
+    	 		assertEquals(1, result);
+    	 	}
+    	
+    	public void testGetCurrentlyPlaying_2()
+    			throws Exception {
+    	 		ServerInfo fixture = new ServerInfo();
+    	 		fixture.update("", "", 1, 1, 1, true, "", 1);
+    	 
+    	 		String result = ServerInfo.getXMLElementTagName();
+    	 
+    	
+    	 		// add additional test code here
+    	 		assertNotNull(result);
+    	 	}
+    	
+    	
+    	public void testGetBestGoodsType_2()
+    	 		throws Exception {
+    	 		ResourceType fixture = new ResourceType("", new Specification());
+    	 
+    	 		GoodsType result = fixture.getBestGoodsType();
+    	 
+    	 		assertEquals(null, result);
+    	 	}
+
+    	
+    	public void testGetMaxValue_1()
+    	 		throws Exception {
+    	 		ResourceType fixture = new ResourceType("", new Specification());
+    	 
+    	 		int result = fixture.getMaxValue();
+    	 
+    	 		assertEquals(0, result);
+    	 	}
+    	
+    	
+    	public void testGetMinValue_1()
+    	 		throws Exception {
+    	 		ResourceType fixture = new ResourceType("", new Specification());
+    	 
+    	 		int result = fixture.getMinValue();
+    	 
+    	 		assertEquals(0, result);
+    	 	}
+    	public void testGetTagName_1()
+    	 		throws Exception {
+    	 
+    	 		String result = ResourceType.getXMLElementTagName();
+    	 
+    	 		// add additional test code here
+    	 		assertEquals("resource-type", result);
+    	 	}
+
 }
+
