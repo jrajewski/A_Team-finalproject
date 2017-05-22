@@ -42,7 +42,7 @@ public class SoundController {
     private static final Logger logger = Logger.getLogger(SoundController.class.getName());
 
 
-    private SoundPlayer soundPlayer;
+    public SoundPlayer soundPlayer;
 
 
     /**

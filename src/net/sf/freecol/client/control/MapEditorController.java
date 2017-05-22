@@ -232,6 +232,7 @@ public final class MapEditorController {
     public void loadGame() {
         File file = gui.showLoadSaveFileDialog();
         if (file != null) loadGame(file);
+        
     }
 
     /**
