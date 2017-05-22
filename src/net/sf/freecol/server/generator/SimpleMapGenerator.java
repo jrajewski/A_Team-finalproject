@@ -355,18 +355,7 @@ public class SimpleMapGenerator implements MapGenerator {
         HashMap<String, Territory> territoryMap = new HashMap<>();
 
         for (Player player : game.getLiveNativePlayers(null)) {
-            switch (player.getNationType()
-                    .getNumberOfSettlements()) {
-            case HIGH:
-                shares += 4;
-                break;
-            case AVERAGE:
-                shares += 3;
-                break;
-            case LOW:
-                shares += 2;
-                break;
-            }
+            shares = updateShares(shares, player);
             indians.add(player);
             List<String> regionKeys
                 = ((IndianNationType)player.getNationType()).getRegionNames();
@@ -377,12 +366,7 @@ public class SimpleMapGenerator implements MapGenerator {
             } else {
                 for (String key : regionKeys) {
                     if (territoryMap.get(key) == null) {
-                        ServerRegion region = (ServerRegion)map.getRegionByKey(key);
-                        if (region == null) {
-                            territory = new Territory(player, map.getRandomLandTile(random));
-                        } else {
-                            territory = new Territory(player, region);
-                        }
+                        territory = newTerritory(map, player, key);
                         territoryMap.put(key, territory);
                         lb.add("Allocated region ", key,
                             " for ", player, ".\n");
@@ -428,10 +412,7 @@ public class SimpleMapGenerator implements MapGenerator {
             = spec.getRangeOption(GameOptions.SETTLEMENT_NUMBER).getValue();
         List<Tile> settlementTiles = new ArrayList<>();
         for (Tile tile : allTiles) {
-            if (!tile.isPolar()
-                && suitableForNativeSettlement(tile)
-                && none(settlementTiles, t -> t.getDistanceTo(tile) < minDistance))
-                settlementTiles.add(tile);
+        	settlementTiles = checkPolar(minDistance, settlementTiles, tile);
         }
         randomShuffle(logger, "Settlement tiles", settlementTiles, random);
 
@@ -451,18 +432,7 @@ public class SimpleMapGenerator implements MapGenerator {
             = new ArrayList<>(territoryMap.values());
         int settlementsPlaced = 0;
         for (Territory territory : territories) {
-            switch (territory.player.getNationType()
-                    .getNumberOfSettlements()) {
-            case HIGH:
-                territory.numberOfSettlements = Math.round(4 * share);
-                break;
-            case AVERAGE:
-                territory.numberOfSettlements = Math.round(3 * share);
-                break;
-            case LOW:
-                territory.numberOfSettlements = Math.round(2 * share);
-                break;
-            }
+            territory = updateSettlementNo(share, territory);
             int radius = territory.player.getNationType().getCapitalType()
                 .getClaimableRadius();
             IndianSettlement is = placeCapital(map, territory, radius,
@@ -500,7 +470,6 @@ public class SimpleMapGenerator implements MapGenerator {
                 if (territory.numberOfSettlements <= 0) {
                     territories.remove(territory);
                 }
-
             }
         }
 
@@ -511,14 +480,7 @@ public class SimpleMapGenerator implements MapGenerator {
         randomShuffle(logger, "Settlements", settlements, random);
         for (IndianSettlement is : settlements) {
             List<Tile> tiles = new ArrayList<>();
-            for (Tile tile : is.getOwnedTiles()) {
-                for (Tile t : tile.getSurroundingTiles(1)) {
-                    if (t.getOwningSettlement() == null) {
-                        tiles.add(tile);
-                        break;
-                    }
-                }
-            }
+            tiles = addTile(is, tiles);
             randomShuffle(logger, "Settlement tiles", tiles, random);
             int minGrow = is.getType().getMinimumGrowth();
             int maxGrow = is.getType().getMaximumGrowth();
@@ -565,18 +527,7 @@ public class SimpleMapGenerator implements MapGenerator {
             // with a bit of favoritism to capitals as the needed skill
             // is so rare,...
             for (IndianSettlement is : extras) {
-                IndianNationType nation
-                    = (IndianNationType) is.getOwner().getNationType();
-                int cm = (is.isCapital()) ? 2 : 1;
-                RandomChoice<IndianSettlement> rc = null;
-                for (RandomChoice<UnitType> c : nation.generateSkillsForTile(is.getTile())) {
-                    if (c.getObject() == neededSkill) {
-                        rc = new RandomChoice<>(is, c.getProbability() * cm);
-                        break;
-                    }
-                }
-                choices.add((rc != null) ? rc
-                            : new RandomChoice<>(is, 1));
+                choices = addChoices(neededSkill, choices, is);
             }
             if (!choices.isEmpty()) {
                 // ...and pick one that could do the missing job.
@@ -596,18 +547,118 @@ public class SimpleMapGenerator implements MapGenerator {
                 lb.add("Game is missing skill: ", neededSkill, "\n");
             }
         }
+        
+        //done refactoring below
         lb.add("Settlement skills:");
         for (List<IndianSettlement> iss : isList) {
-            if (iss.isEmpty()) {
-                lb.add("  0 x <none>");
-            } else {
-                lb.add("  ", iss.size(),
-                    " x ", iss.get(0).getLearnableSkill().getSuffix());
-            }
+            lb = addSettlementSkill(lb, iss);
         }
         lb.add("\nCreated ", settlementsPlaced,
             " Indian settlements of maximum ", settlementsToPlace, ".\n");
     }
+
+
+	private List<RandomChoice<IndianSettlement>> addChoices(UnitType neededSkill, List<RandomChoice<IndianSettlement>> choices, IndianSettlement is) {
+		IndianNationType nation
+		    = (IndianNationType) is.getOwner().getNationType();
+		int cm = (is.isCapital()) ? 2 : 1;
+		RandomChoice<IndianSettlement> rc = null;
+		rc = updateRC(neededSkill, is, nation, cm, rc);
+		choices.add((rc != null) ? rc
+		            : new RandomChoice<>(is, 1));
+		return choices;
+	}
+
+
+	private RandomChoice<IndianSettlement> updateRC(UnitType neededSkill, IndianSettlement is, IndianNationType nation,
+			int cm, RandomChoice<IndianSettlement> rc) {
+		for (RandomChoice<UnitType> c : nation.generateSkillsForTile(is.getTile())) {
+		    if (c.getObject() == neededSkill) {
+		        rc = new RandomChoice<>(is, c.getProbability() * cm);
+		        break;
+		    }
+		}
+		return rc;
+	}
+
+
+	private List<Tile> addTile(IndianSettlement is, List<Tile> tiles) {
+		for (Tile tile : is.getOwnedTiles()) {
+		    for (Tile t : tile.getSurroundingTiles(1)) {
+		        if (t.getOwningSettlement() == null) {
+		            tiles.add(tile);
+		            break;
+		        }
+		    }
+		}
+		return tiles;
+	}
+
+
+	private Territory updateSettlementNo(float share, Territory territory) {
+		switch (territory.player.getNationType()
+		        .getNumberOfSettlements()) {
+		case HIGH:
+		    territory.numberOfSettlements = Math.round(4 * share);
+		    break;
+		case AVERAGE:
+		    territory.numberOfSettlements = Math.round(3 * share);
+		    break;
+		case LOW:
+		    territory.numberOfSettlements = Math.round(2 * share);
+		    break;
+		}
+		return territory;
+	}
+
+
+	private List<Tile> checkPolar(final int minDistance, List<Tile> settlementTiles, Tile tile) {
+		if (!tile.isPolar()
+		    && suitableForNativeSettlement(tile)
+		    && none(settlementTiles, t -> t.getDistanceTo(tile) < minDistance))
+		    settlementTiles.add(tile);
+		return settlementTiles;
+	}
+
+
+	private Territory newTerritory(final Map map, Player player, String key) {
+		Territory territory;
+		ServerRegion region = (ServerRegion)map.getRegionByKey(key);
+		if (region == null) {
+		    territory = new Territory(player, map.getRandomLandTile(random));
+		} else {
+		    territory = new Territory(player, region);
+		}
+		return territory;
+	}
+
+
+	private float updateShares(float shares, Player player) {
+		switch (player.getNationType()
+		        .getNumberOfSettlements()) {
+		case HIGH:
+		    shares += 4;
+		    break;
+		case AVERAGE:
+		    shares += 3;
+		    break;
+		case LOW:
+		    shares += 2;
+		    break;
+		}
+		return shares;
+	}
+
+
+	private LogBuilder addSettlementSkill(LogBuilder lb, List<IndianSettlement> iss) {
+		if (iss.isEmpty()) {
+		    lb.add("  0 x <none>");
+		} else {
+		    lb.add("  ", iss.size(),
+		        " x ", iss.get(0).getLearnableSkill().getSuffix());
+		}
+		return lb;
+	}
 
     /**
      * Is a tile suitable for a native settlement?
@@ -921,7 +972,8 @@ public class SimpleMapGenerator implements MapGenerator {
         return null;
     }
 
-    private void createDebugUnits(Map map, Player player, Tile startTile,
+    @SuppressWarnings("unused")
+	private void createDebugUnits(Map map, Player player, Tile startTile,
                                   LogBuilder lb) {
         // In debug mode give each player a few more units and a colony.
         UnitType unitType = spec.getUnitType("model.unit.galleon");
@@ -930,11 +982,12 @@ public class SimpleMapGenerator implements MapGenerator {
         Unit privateer = new ServerUnit(game, startTile, player, unitType);
         ((ServerPlayer)player).exploreForUnit(privateer);
         unitType = spec.getUnitType("model.unit.freeColonist");
-        Unit unit5 = new ServerUnit(game, unit4, player, unitType);
+		Unit unit5 = new ServerUnit(game, unit4, player, unitType);
         unitType = spec.getUnitType("model.unit.veteranSoldier");
-        Unit unit6 = new ServerUnit(game, unit4, player, unitType);
+		Unit unit6 = new ServerUnit(game, unit4, player, unitType);
         unitType = spec.getUnitType("model.unit.jesuitMissionary");
-        Unit unit7 = new ServerUnit(game, unit4, player, unitType);
+        
+		Unit unit7 = new ServerUnit(game, unit4, player, unitType);
 
         Tile colonyTile = null;
         for (Tile tempTile : map.getCircleTiles(startTile, true, 

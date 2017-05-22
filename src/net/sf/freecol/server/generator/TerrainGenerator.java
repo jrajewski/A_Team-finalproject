@@ -60,9 +60,9 @@ public class TerrainGenerator {
 
     private static final Logger logger = Logger.getLogger(TerrainGenerator.class.getName());
 
-    public static final int LAND_REGIONS_SCORE_VALUE = 1000;
-    public static final int LAND_REGION_MIN_SCORE = 5;
-    public static final int LAND_REGION_MAX_SIZE = 75;
+    private static final int LAND_REGIONS_SCORE_VALUE = 1000;
+    private static final int LAND_REGION_MIN_SCORE = 5;
+    private static final int LAND_REGION_MAX_SIZE = 75;
 
     /** The Game to generate for. */
     private final Game game;
@@ -98,7 +98,7 @@ public class TerrainGenerator {
      * @param random A <code>Random</code> number source.
      * @see #createMap
      */
-    public TerrainGenerator(Game game, Game importGame, Random random) {
+    TerrainGenerator(Game game, Game importGame, Random random) {
         this.game = game;
         this.importGame = importGame;
         this.random = random;
@@ -431,7 +431,8 @@ public class TerrainGenerator {
 
         // Create ServerRegions for all land regions
         ServerRegion[] landregions = new ServerRegion[continents+1];
-        int landIndex = 1;
+        @SuppressWarnings("unused")
+		int landIndex = 1;
         for (int c = 1; c <= continents; c++) {
             // c starting at 1, c=0 is all water tiles
             landregions[c] = new ServerRegion(game, RegionType.LAND);
@@ -651,8 +652,6 @@ public class TerrainGenerator {
      * @return A list of created <code>ServerRegion</code>s.
      */
     private List<ServerRegion> createLakeRegions(Map map, LogBuilder lb) {
-        final TileType lakeType = spec.getTileType("model.tile.lake");
-
         // Create the water map, and find any tiles that are water but
         // not part of any region (such as the oceans).  These are
         // lake tiles.
@@ -691,7 +690,6 @@ public class TerrainGenerator {
             .getTileType("model.tile.lake");
         List<Tile> todo = new ArrayList<>();
         List<ServerRegion> result = new ArrayList<>();
-        int lakeCount = 0;
         while (!lakes.isEmpty()) {
             Tile tile = lakes.get(0);
             if (tile.getRegion() != null) continue;
@@ -858,7 +856,7 @@ public class TerrainGenerator {
      * @param lb A <code>LogBuilder</code> to log to.
      * @return The new <code>Map</code>.
      */
-    public Map createMap(LandMap landMap, LogBuilder lb) {
+    Map createMap(LandMap landMap, LogBuilder lb) {
         final int width = landMap.getWidth();
         final int height = landMap.getHeight();
         final boolean importTerrain = (importGame != null)

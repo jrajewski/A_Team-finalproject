@@ -19,14 +19,21 @@
 
 package net.sf.freecol.server.generator;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
 import java.util.Random;
 import java.util.Vector;
+
+import javax.imageio.metadata.IIOMetadataNode;
+
+import org.junit.Test;
 
 import net.sf.freecol.common.io.FreeColSavegameFile;
 import net.sf.freecol.common.model.FreeColObject;
 import net.sf.freecol.common.model.Game;
 import net.sf.freecol.common.model.IndianSettlement;
+import net.sf.freecol.common.model.LandMap;
 import net.sf.freecol.common.model.Map;
 import net.sf.freecol.common.model.Nation;
 import net.sf.freecol.common.model.NationOptions;
@@ -45,6 +52,44 @@ import net.sf.freecol.util.test.FreeColTestCase;
 
 public class MapGeneratorTest extends FreeColTestCase {
 
+	public void testCreateEmptyMap(){
+		((FileOption) spec().getOption(MapGeneratorOptions.IMPORT_FILE)).setValue(null);
+
+        Game g = new ServerGame(spec());
+        g.setNationOptions(new NationOptions(spec()));
+
+        // A new game does not have a map yet
+        assertEquals(null, g.getMap());
+
+        MapGenerator gen = new SimpleMapGenerator(g, new Random(1));
+		LogBuilder lb = new LogBuilder(10);
+		Map map = gen.createEmptyMap(10, 10, lb);
+	}
+	
+	public void testCreateMap(){
+		((FileOption) spec().getOption(MapGeneratorOptions.IMPORT_FILE)).setValue(null);
+
+        Game g = new ServerGame(spec());
+        g.setNationOptions(new NationOptions(spec()));
+
+        // A new game does not have a map yet
+        assertEquals(null, g.getMap());
+
+        MapGenerator gen = new SimpleMapGenerator(g, new Random(1));
+		LogBuilder lb = new LogBuilder(10);
+		Map map = gen.createMap(lb);
+	}
+	
+	public void testCreateDebugUnits1(){
+		//Map map, Player player, Tile startTile,
+        //LogBuilder lb 
+		//above are params to the method
+		// Create land map.
+		
+		
+        
+	}
+	
     public void testWithNoIndians() {
         ((FileOption) spec().getOption(MapGeneratorOptions.IMPORT_FILE)).setValue(null);
 
@@ -252,4 +297,80 @@ public class MapGeneratorTest extends FreeColTestCase {
         assertFalse(northAtlantic.getDiscoverable());
         assertNull(northAtlantic.getDiscoverableRegion());
     }
+    
+    //codepro test cases
+    //modified to set up a game for each test
+    
+	public void testSimpleMapGenerator_1()
+		throws Exception {
+		//Game g = new ServerGame(spec());
+        //g.setNationOptions(new NationOptions(spec()));
+		Game game = new ServerGame(spec());
+		game.setNationOptions(new NationOptions(spec()));
+		Random random = new Random();
+
+		SimpleMapGenerator result = new SimpleMapGenerator(game, random);
+		
+
+		// add additional test code here
+		// An unexpected exception was thrown in user code while executing this test:
+		//    java.lang.RuntimeException: Read failure
+		//       at net.sf.freecol.common.model.FreeColObject.readFromXMLElement(FreeColObject.java:912)
+		//       at net.sf.freecol.common.model.Game.<init>(Game.java:216)
+		assertNotNull(result);
+	}
+	
+	public void testCreateEmptyMap_1()
+		throws Exception {
+		Game game = new ServerGame(spec());
+		game.setNationOptions(new NationOptions(spec()));
+		SimpleMapGenerator fixture = new SimpleMapGenerator(game, new Random());
+		int width = 1;
+		int height = 1;
+		LogBuilder lb = new LogBuilder(1);
+
+		Map result = fixture.createEmptyMap(width, height, lb);
+
+		// add additional test code here
+		// An unexpected exception was thrown in user code while executing this test:
+		//    java.lang.RuntimeException: Read failure
+		//       at net.sf.freecol.common.model.FreeColObject.readFromXMLElement(FreeColObject.java:912)
+		//       at net.sf.freecol.common.model.Game.<init>(Game.java:216)
+		assertNotNull(result);
+	}
+	
+	public void testCreateMap_1()
+		throws Exception {
+		Game game = new ServerGame(spec());
+		game.setNationOptions(new NationOptions(spec()));
+		SimpleMapGenerator fixture = new SimpleMapGenerator(game, new Random());
+		LogBuilder lb = new LogBuilder(1);
+
+		Map result = fixture.createMap(lb);
+
+		// add additional test code here
+		// An unexpected exception was thrown in user code while executing this test:
+		//    java.lang.RuntimeException: Read failure
+		//       at net.sf.freecol.common.model.FreeColObject.readFromXMLElement(FreeColObject.java:912)
+		//       at net.sf.freecol.common.model.Game.<init>(Game.java:216)
+		assertNotNull(result);
+	}
+	
+	public void testCreateMap_2()
+		throws Exception {
+		Game game = new ServerGame(spec());
+		game.setNationOptions(new NationOptions(spec()));
+		SimpleMapGenerator fixture = new SimpleMapGenerator(game, new Random());
+		LogBuilder lb = new LogBuilder(1);
+
+		Map result = fixture.createMap(lb);
+
+		// add additional test code here
+		// An unexpected exception was thrown in user code while executing this test:
+		//    java.lang.RuntimeException: Read failure
+		//       at net.sf.freecol.common.model.FreeColObject.readFromXMLElement(FreeColObject.java:912)
+		//       at net.sf.freecol.common.model.Game.<init>(Game.java:216)
+		assertNotNull(result);
+	}
+    
 }
